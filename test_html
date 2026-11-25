@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تست فرم</title>
+<style>
+body{font-family:sans-serif;display:flex;justify-content:center;padding:1.5rem;background:#fffaf5}
+form{width:min(92vw,440px);display:flex;flex-direction:column;gap:.9rem;padding:1.5rem;border:1px solid #c9a96a;border-radius:20px;text-align:center}
+input:not([type=radio]){font:inherit;padding:.8em;border:1px solid #c9a96a;border-radius:12px;text-align:center}
+fieldset{border:0;text-align:right}
+button{font:inherit;padding:.8em;border:0;border-radius:12px;background:#c9a96a;color:#fff}
+</style>
+</head>
+<body>
+<form id="f">
+<h2>حضور شما</h2>
+<input name="name" placeholder="نام و نام خانوادگی">
+<input name="phone" type="tel" placeholder="شماره تماس">
+<fieldset>
+<label><input type="radio" name="attend" value="yes" checked> حضور دارم</label><br>
+<label><input type="radio" name="attend" value="no"> حضور ندارم</label>
+</fieldset>
+<input name="guests" type="number" min="0" max="10" value="0" placeholder="تعداد همراه">
+<button type="submit">ثبت پاسخ</button>
+<p id="m"></p>
+</form>
+<script>
+var EVENT_ID='1ff591f8-2f7c-4552-ba9b-678b4f68f0cc';
+var URL='https://zwoksymxbgtygylghlmq.supabase.co/rest/v1/rsvps';
+var KEY='sb_publishable_Z6hhGWvY7_k3LkD2HdmUdA_kFRVLvfK';
+var form=document.getElementById('f'),m=document.getElementById('m');
+form.addEventListener('submit',function(e){
+e.preventDefault();
+var f=form.elements;
+if(!f.name.value.trim()||!f.phone.value.trim()){m.textContent='نام و تلفن را وارد کنید';return;}
+var yes=f.attend.value==='yes';
+m.textContent='در حال ثبت...';
+fetch(URL,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+body:JSON.stringify({event_id:EVENT_ID,name:f.name.value.trim(),phone:f.phone.value.trim(),attendance:yes?'حضور دارم':'حضور ندارم',guests:Number(f.guests.value||0)})
+}).then(function(r){
+if(!r.ok){return r.text().then(function(t){throw new Error(r.status+' '+t)})}
+m.textContent='ثبت شد ✅';form.reset();
+}).catch(function(err){m.textContent='خطا: '+err.message;});
+});
+</script>
+</body>
+</html>
